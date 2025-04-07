@@ -3,6 +3,7 @@ module.exports = function(RED) {
         RED.nodes.createNode(this, config);
         const node = this;
         const axios = require('axios');
+        const nodeStateKey = 'agentstate.' + node.id;
 
         this.on('input', function(msg, send, done) {
             // Use the original message object if send is available (Node-RED 1.0+)
@@ -89,7 +90,7 @@ module.exports = function(RED) {
             node.status({fill:"blue", shape:"dot", text:"Requesting..."});
             
             // Set flow.agentstate to 'processing'
-            node.context().flow.set('agentstate', 'processing');
+            node.context().flow.set(nodeStateKey, 'processing');
             
             // Make the request to Deepseek API
             axios({
@@ -103,7 +104,7 @@ module.exports = function(RED) {
             })
             .then(response => {
                 // Set flow.agentstate to 'received'
-                node.context().flow.set('agentstate', 'received');
+                node.context().flow.set(nodeStateKey, 'received');
                 
                 // Send the complete API response in msg.payload
                 msg.payload = response.data;
@@ -134,6 +135,7 @@ module.exports = function(RED) {
                 msg.payload = error.response ? error.response.data : error.message;
                 msg.deepseekError = error.message;
                 node.status({fill:"red", shape:"dot", text:"Error: " + error.message});
+                node.context().flow.set(nodeStateKey, 'error');
                 send(msg);
                 if (done) done(error);
             });
@@ -141,6 +143,7 @@ module.exports = function(RED) {
 
         this.on('close', function() {
             // Clean up when node is removed or redeployed
+            node.context().flow.set(nodeStateKey, null);
             node.status({});
         });
     }
