@@ -1,0 +1,315 @@
+[
+    {
+        "id": "e48b6a527a5cc912",
+        "type": "tab",
+        "label": "Multi-agent Flow demo",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "4b76c35637f33243",
+        "type": "debug",
+        "z": "e48b6a527a5cc912",
+        "name": "debug 10",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 880,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "e331a10dd5fa34d8",
+        "type": "debug",
+        "z": "e48b6a527a5cc912",
+        "name": "debug 12",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "8204ad3b6db5ae7d",
+        "type": "mqtt in",
+        "z": "e48b6a527a5cc912",
+        "name": "",
+        "topic": "agent/in/summary",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "6f6a71de9985f35d",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 320,
+        "wires": [
+            [
+                "767690da72f04848",
+                "253b048d9d6a4f4d"
+            ]
+        ]
+    },
+    {
+        "id": "0ba0aff8df835312",
+        "type": "mqtt in",
+        "z": "e48b6a527a5cc912",
+        "name": "",
+        "topic": "agent/in/answer",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "6f6a71de9985f35d",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 100,
+        "y": 420,
+        "wires": [
+            [
+                "67a1ffaa16f45b93"
+            ]
+        ]
+    },
+    {
+        "id": "5025721b6355af82",
+        "type": "mqtt out",
+        "z": "e48b6a527a5cc912",
+        "name": "",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "6f6a71de9985f35d",
+        "x": 930,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "3e44d505f110df9c",
+        "type": "mqtt out",
+        "z": "e48b6a527a5cc912",
+        "name": "",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "6f6a71de9985f35d",
+        "x": 930,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "67a1ffaa16f45b93",
+        "type": "factory-agent-states",
+        "z": "e48b6a527a5cc912",
+        "name": "Answer Agent State",
+        "systemPrompt": "Your task is to answer questions use complex explaination and cooperate with other agent who used for simply sentences. When try to answer, remember it must be a json respond and it must include \"topic\" and \"msg\" for transmit in mqtt.\nNow avaliable topic is \"agent/in/summary\"",
+        "environmentDescription": "JSON",
+        "initialDelay": "2",
+        "x": 340,
+        "y": 420,
+        "wires": [
+            [
+                "2257baf506e8da87"
+            ]
+        ]
+    },
+    {
+        "id": "767690da72f04848",
+        "type": "factory-agent-states",
+        "z": "e48b6a527a5cc912",
+        "name": "Summary Agent State",
+        "systemPrompt": "You'll receive both questions from user and answer form other agent. You task is to summary the question or answer u received and decide whether to send to to user or agent. Your respond must be a json and it must include \"topic\" and \"msg\" 2 keys to transmit to corresponding agent according to the topic. Now avaliable agent topic is \"agent/in/answer\"(answer agent), use the topic \"agent/out/respond\"(output to user) when you find the answer",
+        "environmentDescription": "JSON",
+        "initialDelay": "2",
+        "x": 340,
+        "y": 320,
+        "wires": [
+            [
+                "59cd65e0f64021e0"
+            ]
+        ]
+    },
+    {
+        "id": "98c34a2e9dea1f0f",
+        "type": "function",
+        "z": "e48b6a527a5cc912",
+        "name": "Extract Command",
+        "func": "try {\n  const content = msg.result.replace('```json\\n','').replace('```','');\n  const contentJson = JSON.parse(content);\n  msg.topic = contentJson.topic\n  msg.payload = contentJson.msg;\n  return msg;\n\n} catch (error) {\n  node.error(\"Error parsing JSON: \" + error);\n  return msg;\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 730,
+        "y": 360,
+        "wires": [
+            [
+                "3e44d505f110df9c"
+            ]
+        ]
+    },
+    {
+        "id": "cf0e376c6b4c8871",
+        "type": "function",
+        "z": "e48b6a527a5cc912",
+        "name": "Extract Command",
+        "func": "try {\n  const content = msg.result.replace('```json\\n','').replace('```','');\n  const contentJson = JSON.parse(content);\n  msg.topic = contentJson.topic\n  msg.payload = contentJson.msg;\n  return msg;\n\n} catch (error) {\n  node.error(\"Error parsing JSON: \" + error);\n  return msg;\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 730,
+        "y": 500,
+        "wires": [
+            [
+                "5025721b6355af82"
+            ]
+        ]
+    },
+    {
+        "id": "253b048d9d6a4f4d",
+        "type": "debug",
+        "z": "e48b6a527a5cc912",
+        "name": "debug 13",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 320,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "59cd65e0f64021e0",
+        "type": "factory-agent-deepseek",
+        "z": "e48b6a527a5cc912",
+        "name": "Summary Agent",
+        "model": "deepseek-chat",
+        "temperature": "0.1",
+        "maxTokens": "2048",
+        "x": 560,
+        "y": 320,
+        "wires": [
+            [
+                "98c34a2e9dea1f0f",
+                "4b76c35637f33243",
+                "86bf29041bc33da4"
+            ]
+        ]
+    },
+    {
+        "id": "2257baf506e8da87",
+        "type": "factory-agent-deepseek",
+        "z": "e48b6a527a5cc912",
+        "name": "Answer Agent",
+        "model": "deepseek-chat",
+        "temperature": "0.7",
+        "maxTokens": "2048",
+        "x": 560,
+        "y": 420,
+        "wires": [
+            [
+                "cf0e376c6b4c8871",
+                "e331a10dd5fa34d8",
+                "84bd602584f3b7d4"
+            ]
+        ]
+    },
+    {
+        "id": "86bf29041bc33da4",
+        "type": "mqtt out",
+        "z": "e48b6a527a5cc912",
+        "name": "",
+        "topic": "agent/log/view",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "6f6a71de9985f35d",
+        "x": 940,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "84bd602584f3b7d4",
+        "type": "mqtt out",
+        "z": "e48b6a527a5cc912",
+        "name": "",
+        "topic": "agent/log/view",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "6f6a71de9985f35d",
+        "x": 940,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "6f6a71de9985f35d",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "18.141.237.146",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]
