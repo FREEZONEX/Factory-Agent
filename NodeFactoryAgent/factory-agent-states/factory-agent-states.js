@@ -93,7 +93,7 @@ module.exports = function(RED) {
                         return null;
                     }
 
-                    // Start search by iterating through the wires of this node
+                    // Start search from our direct connections
                     if (config.wires && config.wires.length > 0 && config.wires[0].length > 0) {
                         for (let i = 0; i < config.wires[0].length; i++) {
                             const foundAgentNode = findAgentNode(config.wires[0][i]);
@@ -103,6 +103,7 @@ module.exports = function(RED) {
                                 break;
                             }
                         }
+                        
                         if (!connectedAgentNode) {
                             node.warn("Could not find any agent node downstream. State updates will not be triggered automatically.");
                         }

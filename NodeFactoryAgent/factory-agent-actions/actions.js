@@ -20,7 +20,6 @@ module.exports = function(RED) {
         };
         
         // Debug: 检查传入的配置
-        node.debug("Actions config data: " + JSON.stringify(this.actions));
         node.debug("Target agent node: " + this.agentNode);
 
         // Add each action with nested parameters to global context
@@ -46,8 +45,6 @@ module.exports = function(RED) {
                 parameters: params
             };
         });
-        node.debug("Prepared actions JSON: " + JSON.stringify(actionsJson));
-
         
         if (this.agentNode === "global") {
             // If global is selected, save to global.action

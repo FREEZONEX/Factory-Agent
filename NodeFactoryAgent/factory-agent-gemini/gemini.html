@@ -22,6 +22,10 @@
         <label for="node-input-maxTokens"><i class="fa fa-list-ol"></i> Max Tokens</label>
         <input type="number" id="node-input-maxTokens" placeholder="2048" min="1" max="8192">
     </div>
+    <div class="form-row">
+        <label for="node-input-maxMemoryLength"><i class="fa fa-list-ol"></i> Max Memory Length</label>
+        <input type="number" id="node-input-maxMemoryLength" placeholder="1" min="0" max="50">
+    </div>
 </script>
 
 <script type="text/html" data-help-name="factory-agent-gemini">
@@ -79,7 +83,8 @@
             name: { value: "" },
             model: { value: "gemini-2.0-flash" },
             temperature: { value: 0.7, validate: RED.validators.number() },
-            maxTokens: { value: 2048, validate: RED.validators.number() }
+            maxTokens: { value: 2048, validate: RED.validators.number() },
+            maxMemoryLength: { value: 1, validate: RED.validators.number() }            
         },
         credentials: {
             apiKey: { type: "password" }

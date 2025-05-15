@@ -1,10 +1,13 @@
 module.exports = function(RED) {
     function FactoryAgentGemini(config) {
+        const MemoryManager = require('./memory-manager');
+
         RED.nodes.createNode(this, config);
         const node = this;
         const axios = require('axios');
         const nodeStateKey = 'agentstate.' + node.id;
 
+        const memoryManager = new MemoryManager(node, config.maxMemoryLength || 1);
         this.on('input', function(msg, send, done) {
             // Use the original message object if send is available (Node-RED 1.0+)
             send = send || function() { node.send.apply(node, arguments); };
@@ -19,7 +22,13 @@ module.exports = function(RED) {
             if (msg.sysPrompt) {
                 userText += `Instructions: ${msg.sysPrompt}\n\n`;
             }
-            
+
+            // Add memory context
+            const memoryContext = memoryManager.formatMemoryToText();
+            if (memoryContext) {
+                userText += `${memoryContext}\n`;
+            }
+
             // Check if msg.payload exists
             if (msg.hasOwnProperty('payload')) {
                 // If payload exists, append it to the user message
@@ -48,9 +57,9 @@ module.exports = function(RED) {
                     userText += `Environment Context: ${envPrompt}\n\n`;
                 }
                 
-                // Append state information
+                // Append state information 
                 if (state) {
-                    userText += `Current State: ${state}\n\n`;
+                    userText += `Current State: ${JSON.stringify(state)}\n\n`;
                 }
                 
                 // Append action information
@@ -66,6 +75,7 @@ module.exports = function(RED) {
                     userText = "Please provide a response.";
                 }
             }
+            node.debug("User text: " + userText);
             
             // Prepare the request payload - only using "user" role
             const payload = {
@@ -133,6 +143,12 @@ module.exports = function(RED) {
                     const parts = response.data.candidates[0].content.parts;
                     msg.result = parts.map(part => part.text).join("");
                     
+                    // Save to memory
+                    memoryManager.addMemory({
+                        state: JSON.stringify(msg.state),
+                        response: msg.result
+                    });
+
                     // Store any additional useful information
                     if (response.data.candidates[0].finishReason) {
                         msg.finishReason = response.data.candidates[0].finishReason;
