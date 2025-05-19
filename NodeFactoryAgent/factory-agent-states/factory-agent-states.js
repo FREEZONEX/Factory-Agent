@@ -74,20 +74,38 @@ module.exports = function(RED) {
                 // Only set up the initial timer if we haven't sent the first message yet
                 // and we don't already have a timer running
                 if (!firstMessageSent && !initialTimerId) {
+                    /*
+                     * New: Find the connected agent node
+                     */
+                    function findAgentNode(nodeId, visited = new Set()) {
+                        // Prevent infinite loops by tracking visited nodes
+                        if (visited.has(nodeId)) return null;
+                        visited.add(nodeId);
+                        
+                        const currentNode = RED.nodes.getNode(nodeId);
+                        if (!currentNode) return null;
+                        
+                        // Check if this is an agent node
+                        if (currentNode.type === 'factory-agent-deepseek' || 
+                            currentNode.type === 'factory-agent-gemini') {
+                            return currentNode;
+                        }
+                        return null;
+                    }
 
+                    // Start search from our direct connections
                     if (config.wires && config.wires.length > 0 && config.wires[0].length > 0) {
-                        const firstConnectedNodeId = config.wires[0][0];
-                        const nextNode = RED.nodes.getNode(firstConnectedNodeId);
-            
-                        if (nextNode &&
-                            (nextNode.type === 'factory-agent-deepseek' ||
-                             nextNode.type === 'factory-agent-gemini')) {
-                            connectedAgentNode = nextNode;
-                            node.debug("Connected agent node ID: " + connectedAgentNode.id);
-                        } else if (nextNode) {
-                            node.debug("Connected node is not a target agent type: " + nextNode.type + " (ID: " + nextNode.id + ")");
-                        } else {
-                            node.debug("Could not find connected node with ID: " + firstConnectedNodeId);
+                        for (let i = 0; i < config.wires[0].length; i++) {
+                            const foundAgentNode = findAgentNode(config.wires[0][i]);
+                            if (foundAgentNode) {
+                                connectedAgentNode = foundAgentNode;
+                                node.debug("Found agent node ID: " + connectedAgentNode.id + " of type: " + connectedAgentNode.type);
+                                break;
+                            }
+                        }
+                        
+                        if (!connectedAgentNode) {
+                            node.warn("Could not find any agent node downstream. State updates will not be triggered automatically.");
                         }
                     } else {
                         node.debug("No nodes connected to the first output of this node.");

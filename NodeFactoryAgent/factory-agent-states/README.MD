@@ -24,7 +24,7 @@ npm install node-red-contrib-factory-agent-states
 - **Caching system**: Stores the latest message from each topic until triggered
 - **Configurable fields**: Allows setting System Prompt and Environment Description
 - **Initial delay**: Automatically sends the first state after a configurable delay upon receiving the first message
-- **Trigger mechanism**: After the first automatic trigger, constantly monitors the flow context variable `nodeStateKey = 'agentstate.' + node.id` and outputs cached states when it equals "recieved"
+- **Trigger mechanism**: After the first automatic trigger, constantly monitors the flow context variable `agentstate` and outputs cached states when it equals "recieved"
 - **Automatic cache clearing**: Clears the topic cache after sending out the state
 
 ## Node Configuration
