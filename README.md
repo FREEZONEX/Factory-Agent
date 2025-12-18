@@ -6,7 +6,7 @@ Factory Agent is a collection of custom NodeRED nodes that communicate with your
 
 ![Architecture Diagram](/assets/arc.svg)
 
-The method of using an MQ Broker to aggregate industrial data is also known as Unified Namespace, a simple and efficient industrial DataOps methodology considered to be the true industrial data integration solution for the post-OPCUA era. Factory Agent relies on this methodology to establish bidirectional real-time connections with the factory. You can implement this using our open-source software supOS.
+The method of using an MQ Broker to aggregate industrial data is also known as Unified Namespace, a simple and efficient industrial DataOps methodology considered to be the true industrial data integration solution for the post-OPCUA era. Factory Agent relies on this methodology to establish bidirectional real-time connections with the factory. You can implement this using our open-source software Tier0.
 
 ## How it works
 
@@ -38,7 +38,7 @@ For complete documentation on setting up and using the virtual factory, see [Fac
 
 ## Installation
 
-### Installing supOS:
+### Installing Tier0:
 <TBD>
 
 ### Installing Factory Agent nodes:
